@@ -1,2 +1,2 @@
 # route-service
-[解决开发环境微服务路由问题](./docs/README.md)
+["详细文档请戳这里"](./docs/README.md)
