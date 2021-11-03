@@ -22,7 +22,7 @@
  <dependency>
       <groupId>help.lixin</groupId>
       <artifactId>route-core</artifactId>
-      <version><version>1.0.0</version></version>
+      <version>1.0.0</version>
   </dependency>
 ```
 2. 开启route插件
