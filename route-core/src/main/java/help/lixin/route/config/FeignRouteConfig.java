@@ -16,32 +16,33 @@ import feign.RequestInterceptor;
 
 /**
  * 把Feign独立出配置
- * @author lixin
  *
+ * @author lixin
  */
 @Configuration
-@ConditionalOnClass({ CachingSpringLoadBalancerFactory.class, ILoadBalancer.class, Feign.class })
+//@ConditionalOnClass({ CachingSpringLoadBalancerFactory.class, ILoadBalancer.class, Feign.class })
+@ConditionalOnClass({Feign.class})
 public class FeignRouteConfig {
 
-	/**
-	 * 重写:CachingSpringLoadBalancerFactory,创建自定义的:FeignLoadBalancerExt
-	 * 
-	 * @param factory
-	 * @return
-	 */
-	@Primary
-	@Bean
-	public CachingSpringLoadBalancerFactory cachingLBClientFactory(SpringClientFactory factory) {
-		return new CachingSpringLoadBalancerFactoryExt(factory);
-	}
+    /**
+     * 重写:CachingSpringLoadBalancerFactory,创建自定义的:FeignLoadBalancerExt
+     *
+     * @param factory
+     * @return
+     */
+//    @Primary
+//    @Bean
+//    public CachingSpringLoadBalancerFactory cachingLBClientFactory(SpringClientFactory factory) {
+//        return new CachingSpringLoadBalancerFactoryExt(factory);
+//    }
 
-	/**
-	 * Feign透传x-route
-	 * 
-	 * @return
-	 */
-	@Bean
-	public RequestInterceptor feignRouteRequestInterceptor() {
-		return new FeignRouteRequestInterceptor();
-	}
+    /**
+     * Feign透传x-route
+     *
+     * @return
+     */
+    @Bean
+    public RequestInterceptor feignRouteRequestInterceptor() {
+        return new FeignRouteRequestInterceptor();
+    }
 }

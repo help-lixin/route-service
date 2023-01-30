@@ -2,6 +2,12 @@ package help.lixin.route.config;
 
 import java.util.List;
 
+import com.netflix.appinfo.ApplicationInfoManager;
+import com.netflix.appinfo.EurekaInstanceConfig;
+import com.netflix.appinfo.HealthCheckHandler;
+import com.netflix.discovery.AbstractDiscoveryClientOptionalArgs;
+import com.netflix.discovery.EurekaClient;
+import com.netflix.discovery.EurekaClientConfig;
 import help.lixin.route.meta.IRouteService;
 import help.lixin.route.meta.RouteServiceFace;
 import help.lixin.route.meta.RouteServiceMediator;
@@ -10,12 +16,21 @@ import help.lixin.route.parse.IRouteParseService;
 import help.lixin.route.parse.RouteParseServiceFace;
 import help.lixin.route.parse.impl.RewriteRouteParseService;
 import help.lixin.route.ribbon.RibbonLoadBalancerClientProxy;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.SearchStrategy;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
+import org.springframework.cloud.netflix.eureka.CloudEurekaClient;
+import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
+import org.springframework.cloud.util.ProxyUtils;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
 /**
  * 路由的公共配置
@@ -24,26 +39,6 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class CommonRouteConfig {
-
-    /**
-     * 对LoadBalancerClient进行扩展.
-     *
-     * @param springClientFactory
-     * @return
-     */
-    @Bean
-    public LoadBalancerClient loadBalancerClient(SpringClientFactory springClientFactory,
-                                                 RouteServiceFace routeServiceFace) {
-        // 1. 要代理的目标对象
-        RibbonLoadBalancerClient target = new RibbonLoadBalancerClient(springClientFactory);
-
-        // 2. 自定义逻辑的:LoadBalancerClient
-        RibbonLoadBalancerClientProxy proxy = new RibbonLoadBalancerClientProxy();
-        proxy.setProxyTarget(target);
-        proxy.setRouteServiceFace(routeServiceFace);
-        return proxy;
-    }
-
     /**
      * 解析路由服务(重写路由)
      *
