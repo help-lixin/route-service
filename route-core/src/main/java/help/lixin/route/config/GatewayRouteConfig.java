@@ -19,29 +19,27 @@ import org.springframework.web.reactive.DispatcherHandler;
 
 /**
  * 针对gateway的配置
- * 
- * @author lixin
  *
+ * @author lixin
  */
 @SuppressWarnings("deprecation")
 @Configuration
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
 @EnableConfigurationProperties(LoadBalancerProperties.class)
 @AutoConfigureAfter(RibbonAutoConfiguration.class)
-@ConditionalOnClass({ LoadBalancerClient.class, RibbonAutoConfiguration.class, DispatcherHandler.class })
+@ConditionalOnClass({LoadBalancerClient.class, RibbonAutoConfiguration.class, DispatcherHandler.class})
 public class GatewayRouteConfig {
 
-	@Bean
-	@ConditionalOnBean(LoadBalancerClient.class)
-	@ConditionalOnClass(GatewayAutoConfiguration.class)
-	public LoadBalancerClientFilter loadBalancerClientFilter(
-			LoadBalancerClient client,
-			LoadBalancerProperties properties, 
-			RouteParseServiceFace routeParseServiceFace,
-			RouteServiceFace routeServiceFace) {
-		LoadBalancerClientExtFilter filter = new LoadBalancerClientExtFilter(client, properties);
-		filter.setRouteParseServiceFace(routeParseServiceFace);
-		filter.setRouteServiceFace(routeServiceFace);
-		return filter;
-	}
+    @Bean
+    @ConditionalOnBean(LoadBalancerClient.class)
+    @ConditionalOnClass(GatewayAutoConfiguration.class)
+    public LoadBalancerClientFilter loadBalancerClientFilter(LoadBalancerClient client,
+                                                             //
+                                                             LoadBalancerProperties properties,
+                                                             //
+                                                             RouteParseServiceFace routeParseServiceFace) {
+        LoadBalancerClientExtFilter filter = new LoadBalancerClientExtFilter(client, properties);
+        filter.setRouteParseServiceFace(routeParseServiceFace);
+        return filter;
+    }
 }

@@ -20,61 +20,55 @@ import org.springframework.web.server.ServerWebExchange;
 
 @SuppressWarnings("deprecation")
 public class LoadBalancerClientExtFilter extends LoadBalancerClientFilter {
-	private Logger logger = LoggerFactory.getLogger(LoadBalancerClientExtFilter.class);
+    private Logger logger = LoggerFactory.getLogger(LoadBalancerClientExtFilter.class);
 
-	private RouteParseServiceFace routeParseServiceFace;
+    private RouteParseServiceFace routeParseServiceFace;
 
-	private RouteServiceFace routeServiceFace;
+    private RouteServiceFace routeServiceFace;
 
-	public LoadBalancerClientExtFilter(LoadBalancerClient loadBalancer, LoadBalancerProperties properties) {
-		super(loadBalancer, properties);
-	}
+    public LoadBalancerClientExtFilter(LoadBalancerClient loadBalancer, LoadBalancerProperties properties) {
+        super(loadBalancer, properties);
+    }
 
-	public void setRouteServiceFace(RouteServiceFace routeServiceFace) {
-		this.routeServiceFace = routeServiceFace;
-	}
+    public void setRouteParseServiceFace(RouteParseServiceFace routeParseServiceFace) {
+        this.routeParseServiceFace = routeParseServiceFace;
+    }
 
-	public RouteServiceFace getRouteServiceFace() {
-		return routeServiceFace;
-	}
+    public RouteParseServiceFace getRouteParseServiceFace() {
+        return routeParseServiceFace;
+    }
 
-	public void setRouteParseServiceFace(RouteParseServiceFace routeParseServiceFace) {
-		this.routeParseServiceFace = routeParseServiceFace;
-	}
+    @Override
+    protected ServiceInstance choose(ServerWebExchange exchange) {
+        // 1. 获得要请求的微服务名称
+        String serviceId = ((URI) exchange.getAttribute(GATEWAY_REQUEST_URL_ATTR)).getHost().toLowerCase();
+        // 2. 获得协议头上的信息
+        String routeString = exchange.getRequest().getHeaders().getFirst(Constants.ROUTE_KEY);
+        if (null != routeString) {
+            // 转换字符串信息到业务模型,如果转换出现了问题,也不要影响业务正常流转.
+            RouteInfoList routeInfoCollection = null;
+            try {
+                // 3. 对协议头里的信息进行解析,转换成业务模型.
+                routeInfoCollection = routeParseServiceFace.transform(routeString);
+            } catch (Throwable e) {
+                logger.warn("parse route info error:[{}]", e);
+            }
 
-	public RouteParseServiceFace getRouteParseServiceFace() {
-		return routeParseServiceFace;
-	}
+            if (null != routeInfoCollection && !routeInfoCollection.getRouteInfos().isEmpty()) {
+                IRouteInfo routeInfo = routeInfoCollection.getRouteInfos().get(serviceId);
+                if (null != routeInfo) {
+                    // 4. 构建路由信息的上下文.
+                    RouteInfoContext ctx = RouteInfoContext.newBuilder().routeInfo(routeInfo).build();
 
-	@Override
-	protected ServiceInstance choose(ServerWebExchange exchange) {
-		// 1. 获得要请求的微服务名称
-		String serviceId = ((URI) exchange.getAttribute(GATEWAY_REQUEST_URL_ATTR)).getHost().toLowerCase();
-		// 2. 获得协议头上的信息
-		String routeString = exchange.getRequest().getHeaders().getFirst(Constants.ROUTE_KEY);
-		if (null != routeString) {
-			// 转换字符串信息到业务模型,如果转换出现了问题,也不要影响业务正常流转.
-			RouteInfoList routeInfoCollection = null;
-			try {
-				// 3. 对协议头里的信息进行解析,转换成业务模型.
-				routeInfoCollection = routeParseServiceFace.transform(routeString);
-			} catch (Throwable e) {
-				logger.warn("parse route info error:[{}]", e);
-			}
-
-			if (null != routeInfoCollection && !routeInfoCollection.getRouteInfos().isEmpty()) {
-				IRouteInfo routeInfo = routeInfoCollection.getRouteInfos().get(serviceId);
-				if (null != routeInfo) {
-					// 4. 构建路由信息的上下文.
-					RouteInfoContext ctx = RouteInfoContext.newBuilder().routeInfo(routeInfo).build();
-					// 5. 委托给路由门面进行处理.
-					ServiceInstance serviceInstance = routeServiceFace.getServiceInstance(ctx);
-					if (null != serviceId) {
-						return serviceInstance;
-					}
-				}
-			}
-		}
-		return super.choose(exchange);
-	}
+                    // 5. 委托给路由门面进行处理.
+                    // TODO
+//					ServiceInstance serviceInstance = routeServiceFace.getServiceInstance(ctx);
+//					if (null != serviceId) {
+//						return serviceInstance;
+//					}
+                }
+            }
+        }
+        return super.choose(exchange);
+    }
 }

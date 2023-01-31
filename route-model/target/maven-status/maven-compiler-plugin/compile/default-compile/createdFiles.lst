@@ -1,0 +1,5 @@
+help/lixin/route/model/RouteInfoList.class
+help/lixin/route/model/RouteInfo.class
+help/lixin/route/model/IRouteInfo.class
+help/lixin/route/model/RouteInfo$Builder.class
+help/lixin/route/model/RouteInfoList$Builder.class

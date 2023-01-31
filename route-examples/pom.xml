@@ -18,6 +18,6 @@
     <modules>
         <module>route-eureka-example</module>
         <module>route-gateway-example</module>
-        <module>route-apps-example</module>
+        <module>route-eureka-apps-example</module>
     </modules>
 </project>
