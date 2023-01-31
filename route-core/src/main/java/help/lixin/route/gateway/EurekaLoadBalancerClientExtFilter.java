@@ -3,30 +3,52 @@ package help.lixin.route.gateway;
 import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.netflix.appinfo.InstanceInfo;
+import com.netflix.discovery.EurekaClient;
+import com.netflix.niws.loadbalancer.DiscoveryEnabledServer;
 import help.lixin.route.constants.Constants;
-import help.lixin.route.core.meta.RouteServiceFace;
 import help.lixin.route.core.meta.ctx.RouteInfoContext;
+import help.lixin.route.core.parse.RouteParseServiceFace;
+import help.lixin.route.filter.IInstanceFilterFace;
 import help.lixin.route.model.IRouteInfo;
 import help.lixin.route.model.RouteInfoList;
-import help.lixin.route.core.parse.RouteParseServiceFace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.gateway.config.LoadBalancerProperties;
 import org.springframework.cloud.gateway.filter.LoadBalancerClientFilter;
+import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient;
 import org.springframework.web.server.ServerWebExchange;
 
-@SuppressWarnings("deprecation")
-public class LoadBalancerClientExtFilter extends LoadBalancerClientFilter {
-    private Logger logger = LoggerFactory.getLogger(LoadBalancerClientExtFilter.class);
+public class EurekaLoadBalancerClientExtFilter extends LoadBalancerClientFilter {
+    private Logger logger = LoggerFactory.getLogger(EurekaLoadBalancerClientExtFilter.class);
 
     private RouteParseServiceFace routeParseServiceFace;
+    private IInstanceFilterFace<InstanceInfo> instanceFilterFace;
 
-    private RouteServiceFace routeServiceFace;
+    private EurekaClient eurekaClient;
 
-    public LoadBalancerClientExtFilter(LoadBalancerClient loadBalancer, LoadBalancerProperties properties) {
+    public void setEurekaClient(EurekaClient eurekaClient) {
+        this.eurekaClient = eurekaClient;
+    }
+
+    public EurekaClient getEurekaClient() {
+        return eurekaClient;
+    }
+
+    public void setInstanceFilterFace(IInstanceFilterFace<InstanceInfo> instanceFilterFace) {
+        this.instanceFilterFace = instanceFilterFace;
+    }
+
+    public IInstanceFilterFace<InstanceInfo> getInstanceFilterFace() {
+        return instanceFilterFace;
+    }
+
+    public EurekaLoadBalancerClientExtFilter(LoadBalancerClient loadBalancer, LoadBalancerProperties properties) {
         super(loadBalancer, properties);
     }
 
@@ -59,16 +81,28 @@ public class LoadBalancerClientExtFilter extends LoadBalancerClientFilter {
                 if (null != routeInfo) {
                     // 4. 构建路由信息的上下文.
                     RouteInfoContext ctx = RouteInfoContext.newBuilder().routeInfo(routeInfo).build();
-
+                    List<InstanceInfo> instanceInfos = eurekaClient.getInstancesByVipAddress(serviceId, false);
                     // 5. 委托给路由门面进行处理.
-                    // TODO
-//					ServiceInstance serviceInstance = routeServiceFace.getServiceInstance(ctx);
-//					if (null != serviceId) {
-//						return serviceInstance;
-//					}
+                    instanceFilterFace.filter(ctx, instanceInfos);
+                    List<ServiceInstance> tmpInstances = transform(serviceId, instanceInfos);
+                    if (!tmpInstances.isEmpty()) {
+                        return tmpInstances.get(0);
+                    }
                 }
             }
         }
         return super.choose(exchange);
     }
+
+    protected List<ServiceInstance> transform(String serviceId, List<InstanceInfo> instanceInfos) {
+        List<ServiceInstance> instances = new ArrayList<>();
+        if (null != instanceInfos && !instanceInfos.isEmpty()) {
+            InstanceInfo instanceInfo = instanceInfos.get(0);
+            DiscoveryEnabledServer discoveryEnabledServer = new DiscoveryEnabledServer(instanceInfo, false);
+            RibbonLoadBalancerClient.RibbonServer ribbonServer = new RibbonLoadBalancerClient.RibbonServer(serviceId, discoveryEnabledServer, false, null);
+            instances.add(ribbonServer);
+        }
+        return instances;
+    }
+
 }
