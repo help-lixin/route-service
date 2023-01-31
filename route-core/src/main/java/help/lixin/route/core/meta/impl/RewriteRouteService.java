@@ -1,12 +1,12 @@
-package help.lixin.route.meta.impl;
+package help.lixin.route.core.meta.impl;
 
+import help.lixin.route.core.meta.IRouteService;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient.RibbonServer;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.loadbalancer.Server;
 import com.netflix.niws.loadbalancer.DiscoveryEnabledServer;
-import help.lixin.route.meta.IRouteService;
-import help.lixin.route.meta.ctx.RouteInfoContext;
+import help.lixin.route.core.meta.ctx.RouteInfoContext;
 import help.lixin.route.model.IRouteInfo;
 import help.lixin.route.model.RouteInfo;
 import org.slf4j.Logger;
@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author lixin
  */
+@Deprecated
 public class RewriteRouteService implements IRouteService {
     private Logger logger = LoggerFactory.getLogger(RewriteRouteService.class);
 

@@ -1,10 +1,11 @@
-package help.lixin.route.meta;
+package help.lixin.route.core.meta;
 
-import help.lixin.route.meta.ctx.RouteInfoContext;
+import help.lixin.route.core.meta.ctx.RouteInfoContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.client.ServiceInstance;
 
+@Deprecated
 public class RouteServiceFace {
 
     private Logger logger = LoggerFactory.getLogger(RouteServiceFace.class);

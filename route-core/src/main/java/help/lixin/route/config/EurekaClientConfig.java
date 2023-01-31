@@ -7,9 +7,10 @@ import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.AbstractDiscoveryClientOptionalArgs;
 import com.netflix.discovery.EurekaClient;
 import help.lixin.route.eureka.CloudEurekaClientWrapper;
-import help.lixin.route.eureka.IEurekaIInstanceInterceptor;
-import help.lixin.route.eureka.EurekaIInstanceInterceptorFace;
-import help.lixin.route.interceptor.IInstanceInterceptorFace;
+import help.lixin.route.eureka.IEurekaInstanceFilter;
+import help.lixin.route.eureka.EurekaInstanceFilterFace;
+import help.lixin.route.eureka.impl.RewriteEurekaRouteFilter;
+import help.lixin.route.filter.IInstanceFilterFace;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -28,13 +29,21 @@ import java.util.List;
 @ConditionalOnClass(EurekaClient.class)
 public class EurekaClientConfig {
 
+
+    // 拦截器
     @Bean
-    public IInstanceInterceptorFace<InstanceInfo> instanceInterceptorFace(@Autowired(required = false) List<IEurekaIInstanceInterceptor> instanceInterceptors) {
-        EurekaIInstanceInterceptorFace instanceInterceptorFace = new EurekaIInstanceInterceptorFace();
-        if (null != instanceInterceptors) {
-            instanceInterceptorFace.setInterceptors(instanceInterceptors);
+    public IEurekaInstanceFilter<InstanceInfo> rewriteEurekaRouteFilter() {
+        IEurekaInstanceFilter<InstanceInfo> rewriteEurekaRouteFilter = new RewriteEurekaRouteFilter();
+        return rewriteEurekaRouteFilter;
+    }
+
+    @Bean
+    public IInstanceFilterFace<InstanceInfo> instanceFilterFace(@Autowired(required = false) List<IEurekaInstanceFilter> eurekaInstanceFilters) {
+        EurekaInstanceFilterFace eurekaInstanceFilterFace = new EurekaInstanceFilterFace();
+        if (null != eurekaInstanceFilters) {
+            eurekaInstanceFilterFace.setInterceptors(eurekaInstanceFilters);
         }
-        return instanceInterceptorFace;
+        return eurekaInstanceFilterFace;
     }
 
     @Configuration
@@ -55,7 +64,7 @@ public class EurekaClientConfig {
                                          //
                                          EurekaInstanceConfig instance,
                                          //
-                                         IInstanceInterceptorFace<InstanceInfo> instanceInterceptorFace,
+                                         IInstanceFilterFace<InstanceInfo> instanceFilterFace,
                                          //
                                          @Autowired(required = false) HealthCheckHandler healthCheckHandler) {
             ApplicationInfoManager appManager;
@@ -64,7 +73,7 @@ public class EurekaClientConfig {
             } else {
                 appManager = manager;
             }
-            CloudEurekaClient cloudEurekaClientWrapper = new CloudEurekaClientWrapper(appManager, config, this.optionalArgs, this.context, instanceInterceptorFace);
+            CloudEurekaClient cloudEurekaClientWrapper = new CloudEurekaClientWrapper(appManager, config, this.optionalArgs, this.context, instanceFilterFace);
             cloudEurekaClientWrapper.registerHealthCheck(healthCheckHandler);
             return cloudEurekaClientWrapper;
         }

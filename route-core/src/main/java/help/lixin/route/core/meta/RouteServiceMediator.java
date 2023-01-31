@@ -1,8 +1,9 @@
-package help.lixin.route.meta;
+package help.lixin.route.core.meta;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Deprecated
 public class RouteServiceMediator {
 
 	private final Map<Class<?>, IRouteService> ROUTE_SERVICES = new ConcurrentHashMap<Class<?>, IRouteService>(16);

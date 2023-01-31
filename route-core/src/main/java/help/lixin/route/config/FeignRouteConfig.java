@@ -1,18 +1,16 @@
 package help.lixin.route.config;
 
-import help.lixin.route.feign.FeignRouteRequestInterceptor;
+import help.lixin.route.transmit.feign.FeignRouteRequestInterceptor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.eureka.CachingSpringLoadBalancerFactoryExt;
 import org.springframework.cloud.openfeign.ribbon.CachingSpringLoadBalancerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
-
-import com.netflix.loadbalancer.ILoadBalancer;
 
 import feign.Feign;
 import feign.RequestInterceptor;
+import org.springframework.context.annotation.Primary;
 
 /**
  * 把Feign独立出配置
@@ -20,21 +18,8 @@ import feign.RequestInterceptor;
  * @author lixin
  */
 @Configuration
-//@ConditionalOnClass({ CachingSpringLoadBalancerFactory.class, ILoadBalancer.class, Feign.class })
 @ConditionalOnClass({Feign.class})
 public class FeignRouteConfig {
-
-    /**
-     * 重写:CachingSpringLoadBalancerFactory,创建自定义的:FeignLoadBalancerExt
-     *
-     * @param factory
-     * @return
-     */
-//    @Primary
-//    @Bean
-//    public CachingSpringLoadBalancerFactory cachingLBClientFactory(SpringClientFactory factory) {
-//        return new CachingSpringLoadBalancerFactoryExt(factory);
-//    }
 
     /**
      * Feign透传x-route

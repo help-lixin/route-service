@@ -1,4 +1,4 @@
-package help.lixin.route.parse;
+package help.lixin.route.core.parse;
 
 import help.lixin.route.model.RouteInfoList;
 
