@@ -35,13 +35,17 @@ public class GatewayRouteConfig {
     @Bean
     @ConditionalOnBean({EurekaClient.class, LoadBalancerClient.class})
     @ConditionalOnClass(GatewayAutoConfiguration.class)
-    public LoadBalancerClientFilter eurekaLoadBalancerClientExtFilter(LoadBalancerClient client,
-                                                                      //
-                                                                      LoadBalancerProperties properties,
-                                                                      //
-                                                                      RouteParseServiceFace routeParseServiceFace,
-                                                                      //
-                                                                      IInstanceFilterFace<InstanceInfo> instanceFilterFace, EurekaClient eurekaClient) {
+    public LoadBalancerClientFilter loadBalancerClientExtFilter(
+                                        //
+                                        LoadBalancerClient client,
+                                        //
+                                        LoadBalancerProperties properties,
+                                        //
+                                        RouteParseServiceFace routeParseServiceFace,
+                                        //
+                                        IInstanceFilterFace<InstanceInfo> instanceFilterFace,
+                                        //
+                                        EurekaClient eurekaClient) {
         EurekaLoadBalancerClientExtFilter filter = new EurekaLoadBalancerClientExtFilter(client, properties);
         filter.setRouteParseServiceFace(routeParseServiceFace);
         filter.setInstanceFilterFace(instanceFilterFace);
