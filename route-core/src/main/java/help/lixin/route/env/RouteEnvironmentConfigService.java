@@ -23,7 +23,7 @@ public class RouteEnvironmentConfigService implements EnvironmentPostProcessor {
 
     // 排除gateway配置的:LoadBalancerClient
     private String excludeGatewayKey = "spring.autoconfigure.exclude";
-    private String excludeValue = "org.springframework.cloud.gateway.config.GatewayLoadBalancerClientAutoConfiguration";
+    private String excludeValue = "org.springframework.cloud.gateway.config.GatewayLoadBalancerClientAutoConfiguration,com.alibaba.cloud.nacos.ribbon.RibbonNacosAutoConfiguration";
     private final String name = "_overrideRouteEnv";
 
     @Override

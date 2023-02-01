@@ -2,10 +2,22 @@ package help.lixin.route.config;
 
 import java.util.List;
 
+import com.netflix.loadbalancer.Server;
+import com.netflix.niws.loadbalancer.DiscoveryEnabledServer;
+import help.lixin.route.constants.Constants;
 import help.lixin.route.core.parse.IRouteParseService;
 import help.lixin.route.core.parse.RouteParseServiceFace;
 import help.lixin.route.core.parse.impl.RewriteRouteParseService;
+import help.lixin.route.filter.IServerFactory;
+import help.lixin.route.filter.IServerFilter;
+import help.lixin.route.filter.IServerFilterFace;
+import help.lixin.route.filter.ServerFilterFace;
+import help.lixin.route.filter.impl.EurekaServerFactory;
+import help.lixin.route.filter.impl.NacosServerFactory;
+import help.lixin.route.filter.impl.RewriteEurekaRouteFilter;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -40,40 +52,30 @@ public class CommonRouteConfig {
         return routeParseServiceFace;
     }
 
-    /**
-     * 进行路由重写的门面模式(入口)
-     *
-     * @return
-     */
-//    @Bean
-//    public RouteServiceFace routeServiceFace() {
-//        return new RouteServiceFace();
+    // 拦截器 TODO lixin
+    @Bean
+    public IServerFilter<Server> rewriteEurekaRouteFilter() {
+        IServerFilter<Server> rewriteEurekaRouteFilter = new RewriteEurekaRouteFilter();
+        return rewriteEurekaRouteFilter;
+    }
+
+//    @Bean(name = Constants.DISCOVERY_EUREKA)
+//    public IServerFactory eurekaServerFactory() {
+//        return new EurekaServerFactory();
 //    }
 
-    /**
-     * 根据协议头信息,进行路由重写
-     *
-     * @return
-     */
-//    @Bean
-//    public IRouteService rewriteRouteService() {
-//        return new RewriteRouteService();
-//    }
+    @Bean(name = Constants.DISCOVERY_NACOS)
+    public IServerFactory nacosServerFactory() {
+        return new NacosServerFactory();
+    }
 
-    /**
-     * 中介者模式,存储对协议头解析后的对象(RouteInfo)与路由(IRouteService)之间的关系
-     * IRouteService需要设置支持对:RouteInfo类的解析.
-     *
-     * @param routeServices
-     * @return
-     */
-//    @Bean
-//    public RouteServiceMediator routeServiceMediator(ObjectProvider<List<IRouteService>> routeServices) {
-//        RouteServiceMediator routeServiceMediator = RouteServiceMediator.getInstance();
-//        List<IRouteService> routeList = routeServices.getIfAvailable();
-//        for (IRouteService routeService : routeList) {
-//            routeServiceMediator.put(routeService.supportType(), routeService);
-//        }
-//        return routeServiceMediator;
-//    }
+
+    @Bean
+    public IServerFilterFace<Server> serverFilterFace(@Autowired(required = false) List<IServerFilter<Server>> serverFilters) {
+        ServerFilterFace eurekaInstanceFilterFace = new ServerFilterFace();
+        if (null != serverFilters) {
+            eurekaInstanceFilterFace.setFilterList(serverFilters);
+        }
+        return eurekaInstanceFilterFace;
+    }
 }
