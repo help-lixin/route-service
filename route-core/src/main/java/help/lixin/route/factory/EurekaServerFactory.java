@@ -1,4 +1,4 @@
-package help.lixin.route.filter.impl;
+package help.lixin.route.factory;
 
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.loadbalancer.Server;

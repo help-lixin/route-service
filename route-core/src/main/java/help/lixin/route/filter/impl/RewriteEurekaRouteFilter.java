@@ -1,7 +1,6 @@
 package help.lixin.route.filter.impl;
 
 import com.netflix.loadbalancer.Server;
-import help.lixin.route.constants.Constants;
 import help.lixin.route.core.meta.ctx.RouteInfoContext;
 import help.lixin.route.filter.IServerFactory;
 import help.lixin.route.filter.IServerFilter;
