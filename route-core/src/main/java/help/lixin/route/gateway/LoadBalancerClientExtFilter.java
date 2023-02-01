@@ -1,5 +1,7 @@
 package help.lixin.route.gateway;
 
+import com.netflix.loadbalancer.Server;
+
 import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR;
 
 import java.net.URI;
@@ -12,7 +14,7 @@ import com.netflix.niws.loadbalancer.DiscoveryEnabledServer;
 import help.lixin.route.constants.Constants;
 import help.lixin.route.core.meta.ctx.RouteInfoContext;
 import help.lixin.route.core.parse.RouteParseServiceFace;
-import help.lixin.route.filter.IInstanceFilterFace;
+import help.lixin.route.filter.IServerFilterFace;
 import help.lixin.route.model.IRouteInfo;
 import help.lixin.route.model.RouteInfoList;
 import org.slf4j.Logger;
@@ -28,7 +30,7 @@ public class EurekaLoadBalancerClientExtFilter extends LoadBalancerClientFilter 
     private Logger logger = LoggerFactory.getLogger(EurekaLoadBalancerClientExtFilter.class);
 
     private RouteParseServiceFace routeParseServiceFace;
-    private IInstanceFilterFace<InstanceInfo> instanceFilterFace;
+    private IServerFilterFace<Server> serverFilterFace;
 
     private EurekaClient eurekaClient;
 
@@ -40,12 +42,13 @@ public class EurekaLoadBalancerClientExtFilter extends LoadBalancerClientFilter 
         return eurekaClient;
     }
 
-    public void setInstanceFilterFace(IInstanceFilterFace<InstanceInfo> instanceFilterFace) {
-        this.instanceFilterFace = instanceFilterFace;
+
+    public void setServerFilterFace(IServerFilterFace<Server> serverFilterFace) {
+        this.serverFilterFace = serverFilterFace;
     }
 
-    public IInstanceFilterFace<InstanceInfo> getInstanceFilterFace() {
-        return instanceFilterFace;
+    public IServerFilterFace<Server> getServerFilterFace() {
+        return serverFilterFace;
     }
 
     public EurekaLoadBalancerClientExtFilter(LoadBalancerClient loadBalancer, LoadBalancerProperties properties) {
@@ -82,12 +85,18 @@ public class EurekaLoadBalancerClientExtFilter extends LoadBalancerClientFilter 
                     // 4. 构建路由信息的上下文.
                     RouteInfoContext ctx = RouteInfoContext.newBuilder().routeInfo(routeInfo).build();
                     List<InstanceInfo> instanceInfos = eurekaClient.getInstancesByVipAddress(serviceId, false);
+
+                    
+
+                    // ***************************************************************************************
+                    // TODO lixin
+                    // ***************************************************************************************
                     // 5. 委托给路由门面进行处理.
-                    instanceFilterFace.filter(ctx, instanceInfos);
-                    List<ServiceInstance> tmpInstances = transform(serviceId, instanceInfos);
-                    if (!tmpInstances.isEmpty()) {
-                        return tmpInstances.get(0);
-                    }
+//                    serverFilterFace.filter(ctx, instanceInfos);
+//                    List<ServiceInstance> tmpInstances = transform(serviceId, instanceInfos);
+//                    if (!tmpInstances.isEmpty()) {
+//                        return tmpInstances.get(0);
+//                    }
                 }
             }
         }
