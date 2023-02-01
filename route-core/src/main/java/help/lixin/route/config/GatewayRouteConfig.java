@@ -1,9 +1,9 @@
 package help.lixin.route.config;
 
-import com.netflix.appinfo.InstanceInfo;
+import com.netflix.loadbalancer.Server;
 import com.netflix.discovery.EurekaClient;
-import help.lixin.route.filter.IInstanceFilterFace;
-import help.lixin.route.gateway.EurekaLoadBalancerClientExtFilter;
+import help.lixin.route.filter.IServerFilterFace;
+import help.lixin.route.gateway.LoadBalancerClientExtFilter;
 import help.lixin.route.core.parse.RouteParseServiceFace;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -36,22 +36,20 @@ public class GatewayRouteConfig {
     @ConditionalOnBean({EurekaClient.class, LoadBalancerClient.class})
     @ConditionalOnClass(GatewayAutoConfiguration.class)
     public LoadBalancerClientFilter loadBalancerClientExtFilter(
-                                        //
-                                        LoadBalancerClient client,
-                                        //
-                                        LoadBalancerProperties properties,
-                                        //
-                                        RouteParseServiceFace routeParseServiceFace,
-                                        //
-                                        IInstanceFilterFace<InstanceInfo> instanceFilterFace,
-                                        //
-                                        EurekaClient eurekaClient) {
-        EurekaLoadBalancerClientExtFilter filter = new EurekaLoadBalancerClientExtFilter(client, properties);
+            //
+            LoadBalancerClient client,
+            //
+            LoadBalancerProperties properties,
+            //
+            RouteParseServiceFace routeParseServiceFace,
+            //
+            IServerFilterFace<Server> serverFilterFace,
+            //
+            EurekaClient eurekaClient) {
+        LoadBalancerClientExtFilter filter = new LoadBalancerClientExtFilter(client, properties);
         filter.setRouteParseServiceFace(routeParseServiceFace);
-        filter.setInstanceFilterFace(instanceFilterFace);
+        filter.setServerFilterFace(serverFilterFace);
         filter.setEurekaClient(eurekaClient);
         return filter;
     }
-
-
 }

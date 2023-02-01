@@ -19,6 +19,8 @@ import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 
 
+
+@Deprecated
 public class RibbonLoadBalancerClientProxy extends RibbonLoadBalancerClient implements LoadBalancerClient {
     private Logger logger = LoggerFactory.getLogger(RibbonLoadBalancerClientProxy.class);
 

@@ -26,8 +26,8 @@ import org.springframework.cloud.gateway.filter.LoadBalancerClientFilter;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient;
 import org.springframework.web.server.ServerWebExchange;
 
-public class EurekaLoadBalancerClientExtFilter extends LoadBalancerClientFilter {
-    private Logger logger = LoggerFactory.getLogger(EurekaLoadBalancerClientExtFilter.class);
+public class LoadBalancerClientExtFilter extends LoadBalancerClientFilter {
+    private Logger logger = LoggerFactory.getLogger(LoadBalancerClientExtFilter.class);
 
     private RouteParseServiceFace routeParseServiceFace;
     private IServerFilterFace<Server> serverFilterFace;
@@ -51,7 +51,7 @@ public class EurekaLoadBalancerClientExtFilter extends LoadBalancerClientFilter 
         return serverFilterFace;
     }
 
-    public EurekaLoadBalancerClientExtFilter(LoadBalancerClient loadBalancer, LoadBalancerProperties properties) {
+    public LoadBalancerClientExtFilter(LoadBalancerClient loadBalancer, LoadBalancerProperties properties) {
         super(loadBalancer, properties);
     }
 
@@ -83,35 +83,37 @@ public class EurekaLoadBalancerClientExtFilter extends LoadBalancerClientFilter 
                 IRouteInfo routeInfo = routeInfoCollection.getRouteInfos().get(serviceId);
                 if (null != routeInfo) {
                     // 4. 构建路由信息的上下文.
-                    RouteInfoContext ctx = RouteInfoContext.newBuilder().routeInfo(routeInfo).build();
-                    List<InstanceInfo> instanceInfos = eurekaClient.getInstancesByVipAddress(serviceId, false);
-
-                    
-
-                    // ***************************************************************************************
-                    // TODO lixin
-                    // ***************************************************************************************
+                    RouteInfoContext ctx = RouteInfoContext.newBuilder()
+                            //
+                            .routeInfo(routeInfo)
+                            //
+                            .other(Constants.DISCOVERY_TYPE, Constants.DISCOVERY_EUREKA).build();
+                    // 通过Eureka拿出所有的微服务信息
+                    List<Server> tmpServer = transformToServer(eurekaClient.getInstancesByVipAddress(serviceId, false));
                     // 5. 委托给路由门面进行处理.
-//                    serverFilterFace.filter(ctx, instanceInfos);
-//                    List<ServiceInstance> tmpInstances = transform(serviceId, instanceInfos);
-//                    if (!tmpInstances.isEmpty()) {
-//                        return tmpInstances.get(0);
-//                    }
+                    serverFilterFace.filter(ctx, tmpServer);
+                    // 6. 在这里只取一个出来用.
+                    // TODO lixin
+                    if (!tmpServer.isEmpty()) {
+                        Server server = tmpServer.get(0);
+                        ServiceInstance serviceInstance = new RibbonLoadBalancerClient.RibbonServer(serviceId, server);
+                        return serviceInstance;
+                    }
                 }
             }
         }
         return super.choose(exchange);
     }
 
-    protected List<ServiceInstance> transform(String serviceId, List<InstanceInfo> instanceInfos) {
-        List<ServiceInstance> instances = new ArrayList<>();
-        if (null != instanceInfos && !instanceInfos.isEmpty()) {
-            InstanceInfo instanceInfo = instanceInfos.get(0);
-            DiscoveryEnabledServer discoveryEnabledServer = new DiscoveryEnabledServer(instanceInfo, false);
-            RibbonLoadBalancerClient.RibbonServer ribbonServer = new RibbonLoadBalancerClient.RibbonServer(serviceId, discoveryEnabledServer, false, null);
-            instances.add(ribbonServer);
-        }
-        return instances;
-    }
 
+    protected List<Server> transformToServer(List<InstanceInfo> infos) {
+        List<Server> servers = new ArrayList<>();
+        if (null != infos && !infos.isEmpty()) {
+            for (InstanceInfo instance : infos) {
+                DiscoveryEnabledServer discoveryEnabledServer = new DiscoveryEnabledServer(instance, false);
+                servers.add(discoveryEnabledServer);
+            }
+        }
+        return servers;
+    }
 }
