@@ -1,4 +1,0 @@
-org.springframework.boot.env.EnvironmentPostProcessor=\
-help.lixin.route.env.RouteEnvironmentConfigService
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-help.lixin.route.RouteAutoConfiguration

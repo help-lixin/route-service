@@ -16,8 +16,8 @@
     </properties>
 
     <modules>
-        <module>route-eureka-example</module>
-        <module>route-gateway-example</module>
+        <module>route-eureka-gateway-example</module>
+        <module>route-eureka-server</module>
         <module>route-eureka-apps-example</module>
         <module>route-nacos-apps-example</module>
     </modules>

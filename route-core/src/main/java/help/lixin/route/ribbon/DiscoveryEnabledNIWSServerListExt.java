@@ -77,8 +77,6 @@ public class DiscoveryEnabledNIWSServerListExt extends DiscoveryEnabledNIWSServe
                     //
                     .other("serviceId", serviceId)
                     //
-                    .other(Constants.DISCOVERY_TYPE, getType()) // eureka/nacos
-                    //
                     .build();
             serverFilterFace.filter(ctx, instances);
         }
