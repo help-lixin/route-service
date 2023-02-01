@@ -23,15 +23,18 @@ public class RewriteEurekaRouteFilter implements IServerFilter<Server>, Applicat
         IRouteInfo routeInfo = ctx.getRouteInfo();
         if (routeInfo instanceof RouteInfo) {
             RouteInfo routeInfoImpl = (RouteInfo) routeInfo;
-            // 1. mock Server
-            String discoveryType = (String) ctx.getOthers().get(Constants.DISCOVERY_TYPE);
-            Server mockServer = applicationContext.getBean(discoveryType, IServerFactory.class).create(routeInfoImpl);
 
-            // 2. 清空
-            instances.clear();
+            IServerFactory serverFactory = applicationContext.getBean(IServerFactory.class);
+            if (null != serverFactory) {
+                // 1. mock Server
+                Server mockServer = serverFactory.create(routeInfoImpl);
 
-            // 3. 重新添加
-            instances.add(mockServer);
+                // 2. 清空
+                instances.clear();
+
+                // 3. 重新添加
+                instances.add(mockServer);
+            }
         }
     }
 

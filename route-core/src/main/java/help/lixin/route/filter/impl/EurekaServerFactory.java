@@ -9,7 +9,9 @@ import help.lixin.route.model.RouteInfo;
 public class EurekaServerFactory implements IServerFactory {
     @Override
     public Server create(RouteInfo routeInfo) {
-        InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder().setAppName(routeInfo.getServiceId())
+        InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder()
+                //
+                .setAppName(routeInfo.getServiceId())
                 //
                 .setVIPAddress(routeInfo.getIp())
                 //

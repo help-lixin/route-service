@@ -3,7 +3,6 @@ package help.lixin.route.config;
 import java.util.List;
 
 import com.netflix.loadbalancer.Server;
-import com.netflix.niws.loadbalancer.DiscoveryEnabledServer;
 import help.lixin.route.constants.Constants;
 import help.lixin.route.core.parse.IRouteParseService;
 import help.lixin.route.core.parse.RouteParseServiceFace;
@@ -12,12 +11,12 @@ import help.lixin.route.filter.IServerFactory;
 import help.lixin.route.filter.IServerFilter;
 import help.lixin.route.filter.IServerFilterFace;
 import help.lixin.route.filter.ServerFilterFace;
-import help.lixin.route.filter.impl.EurekaServerFactory;
 import help.lixin.route.filter.impl.NacosServerFactory;
 import help.lixin.route.filter.impl.RewriteEurekaRouteFilter;
+import help.lixin.route.ribbon.RibbonClientAutoRegister;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -28,6 +27,19 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class CommonRouteConfig {
+
+    /**
+     * 对它的扩展:<br/>
+     *
+     * @return
+     * @RibbonClients(defaultConfiguration=XXX.class)<br/> 因为:它需要明确指定Class,而我这里的,Class会根据是nacos/eureka来指定.<br/>
+     */
+    @Bean
+    public BeanFactoryPostProcessor ribbonClientAutoRegister() {
+        BeanFactoryPostProcessor register = new RibbonClientAutoRegister();
+        return register;
+    }
+
     /**
      * 解析路由服务(重写路由)
      *
@@ -52,30 +64,29 @@ public class CommonRouteConfig {
         return routeParseServiceFace;
     }
 
-    // 拦截器 TODO lixin
+    /**
+     * Filter门面模式
+     *
+     * @param serverFilters
+     * @return
+     */
+    @Bean
+    public IServerFilterFace<Server> serverFilterFace(@Autowired(required = false) List<IServerFilter<Server>> serverFilters) {
+        ServerFilterFace serverFilterFace = new ServerFilterFace();
+        if (null != serverFilters) {
+            serverFilterFace.setFilterList(serverFilters);
+        }
+        return serverFilterFace;
+    }
+
+    /**
+     * Filter的实现之一(主要是实现:对路由的重写)
+     *
+     * @return
+     */
     @Bean
     public IServerFilter<Server> rewriteEurekaRouteFilter() {
         IServerFilter<Server> rewriteEurekaRouteFilter = new RewriteEurekaRouteFilter();
         return rewriteEurekaRouteFilter;
-    }
-
-//    @Bean(name = Constants.DISCOVERY_EUREKA)
-//    public IServerFactory eurekaServerFactory() {
-//        return new EurekaServerFactory();
-//    }
-
-    @Bean(name = Constants.DISCOVERY_NACOS)
-    public IServerFactory nacosServerFactory() {
-        return new NacosServerFactory();
-    }
-
-
-    @Bean
-    public IServerFilterFace<Server> serverFilterFace(@Autowired(required = false) List<IServerFilter<Server>> serverFilters) {
-        ServerFilterFace eurekaInstanceFilterFace = new ServerFilterFace();
-        if (null != serverFilters) {
-            eurekaInstanceFilterFace.setFilterList(serverFilters);
-        }
-        return eurekaInstanceFilterFace;
     }
 }
