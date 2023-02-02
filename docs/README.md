@@ -59,7 +59,7 @@ lixin-macbook:route-service lixin$ tree -L 2
 └── route-model                       # route的业务模型
 ```
 ### 5. 相关问题
-1) 为什么要共用Eureka?    
-   当流量导到你指定的机器上后,余下的的调用链还需要继续执行的话,就需要与开发稳定环境共享同一个Eureka.  
+1) 为什么要共用Eureka/Nacos?    
+   当流量导到你指定的机器上后,余下的的调用链路还需要继续执行的话,就需要与开发稳定环境共享同一个Eureka/Nacos.  
 2) 支持路由重写哪些?    
    暂时只支持:Spring Cloud Gateway/Ribbon/OpenFeign. 

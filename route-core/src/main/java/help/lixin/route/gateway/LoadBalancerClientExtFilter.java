@@ -1,5 +1,6 @@
 package help.lixin.route.gateway;
 
+import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
 
 import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR;
@@ -24,6 +25,7 @@ import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.gateway.config.LoadBalancerProperties;
 import org.springframework.cloud.gateway.filter.LoadBalancerClientFilter;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient;
+import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.web.server.ServerWebExchange;
 
 public class LoadBalancerClientExtFilter extends LoadBalancerClientFilter {
@@ -87,7 +89,7 @@ public class LoadBalancerClientExtFilter extends LoadBalancerClientFilter {
                             //
                             .routeInfo(routeInfo)
                             //
-                            .other(Constants.DISCOVERY_TYPE, Constants.DISCOVERY_EUREKA).build();
+                            .build();
                     // 通过Eureka拿出所有的微服务信息
                     List<Server> tmpServer = transformToServer(eurekaClient.getInstancesByVipAddress(serviceId, false));
                     // 5. 委托给路由门面进行处理.
