@@ -1,16 +1,10 @@
 package help.lixin.route.gateway;
 
-import com.netflix.loadbalancer.ILoadBalancer;
-import com.netflix.loadbalancer.Server;
-
-import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR;
-
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.alibaba.cloud.nacos.ribbon.NacosServer;
+import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
+import com.netflix.loadbalancer.Server;
 import com.netflix.niws.loadbalancer.DiscoveryEnabledServer;
 import help.lixin.route.constants.Constants;
 import help.lixin.route.core.meta.ctx.RouteInfoContext;
@@ -21,29 +15,34 @@ import help.lixin.route.model.RouteInfoList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.gateway.config.LoadBalancerProperties;
 import org.springframework.cloud.gateway.filter.LoadBalancerClientFilter;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient;
-import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.web.server.ServerWebExchange;
 
-public class LoadBalancerClientExtFilter extends LoadBalancerClientFilter {
-    private Logger logger = LoggerFactory.getLogger(LoadBalancerClientExtFilter.class);
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR;
+
+public class NacosLoadBalancerClientExtFilter extends LoadBalancerClientFilter {
+    private Logger logger = LoggerFactory.getLogger(NacosLoadBalancerClientExtFilter.class);
 
     private RouteParseServiceFace routeParseServiceFace;
     private IServerFilterFace<Server> serverFilterFace;
 
-    private EurekaClient eurekaClient;
+    private DiscoveryClient discoveryClient;
 
-    public void setEurekaClient(EurekaClient eurekaClient) {
-        this.eurekaClient = eurekaClient;
+    public void setDiscoveryClient(DiscoveryClient discoveryClient) {
+        this.discoveryClient = discoveryClient;
     }
 
-    public EurekaClient getEurekaClient() {
-        return eurekaClient;
+    public DiscoveryClient getDiscoveryClient() {
+        return discoveryClient;
     }
-
 
     public void setServerFilterFace(IServerFilterFace<Server> serverFilterFace) {
         this.serverFilterFace = serverFilterFace;
@@ -53,7 +52,7 @@ public class LoadBalancerClientExtFilter extends LoadBalancerClientFilter {
         return serverFilterFace;
     }
 
-    public LoadBalancerClientExtFilter(LoadBalancerClient loadBalancer, LoadBalancerProperties properties) {
+    public NacosLoadBalancerClientExtFilter(LoadBalancerClient loadBalancer, LoadBalancerProperties properties) {
         super(loadBalancer, properties);
     }
 
@@ -91,7 +90,9 @@ public class LoadBalancerClientExtFilter extends LoadBalancerClientFilter {
                             //
                             .build();
                     // 通过Eureka拿出所有的微服务信息
-                    List<Server> tmpServer = transformToServer(eurekaClient.getInstancesByVipAddress(serviceId, false));
+                    List<ServiceInstance> instances = discoveryClient.getInstances(serviceId);
+                    List<Server> tmpServer = toServer(instances);
+
                     // 5. 委托给路由门面进行处理.
                     serverFilterFace.filter(ctx, tmpServer);
                     // 6. 在这里只取一个出来用.
@@ -107,6 +108,25 @@ public class LoadBalancerClientExtFilter extends LoadBalancerClientFilter {
         return super.choose(exchange);
     }
 
+    protected List<Server> toServer(List<ServiceInstance> instances) {
+        List<Server> servers = new ArrayList<>();
+        for (ServiceInstance instance : instances) {
+            instance.getServiceId();
+            instance.getHost();
+            instance.getPort();
+            instance.getInstanceId();
+
+            Instance tmpInstance = new Instance();
+            tmpInstance.setInstanceId(instance.getServiceId());
+            tmpInstance.setServiceName(instance.getServiceId());
+            tmpInstance.setIp(instance.getHost());
+            tmpInstance.setPort(instance.getPort());
+
+            NacosServer nacosServer = new NacosServer(tmpInstance);
+            servers.add(nacosServer);
+        }
+        return servers;
+    }
 
     protected List<Server> transformToServer(List<InstanceInfo> infos) {
         List<Server> servers = new ArrayList<>();

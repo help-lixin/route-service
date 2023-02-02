@@ -1,0 +1,37 @@
+#端口
+server:
+  port: 9000
+
+# 配置eureka注册中心
+eureka:
+  client:
+    service-url:
+        defaultZone: http://eureka1:1111/eureka/
+
+# id : 路由ID,需要做到唯一
+# uri : lb://根据微服务的名称从注册中心获取请求地址.
+# predicates : 断言(判断条件)
+# 路由规则(Path): 根据URL进行匹配,并把URL加在lb的后面
+# 假设配置:Path=/test/consumer/**,那么,请求的URL则是:(http://test-consumer-feign/test/consumer/**)
+
+x-route:
+  enabled: true
+
+spring:
+  application:
+    name: gateway-server  # 应用名称
+  cloud:
+    gateway:
+      routes:
+        - id: test-consumer-service
+          uri: lb://test-consumer
+          predicates: 
+            - Path=/test-consumer/**
+          filters:
+            - StripPrefix=1
+        - id: test-provider-service
+          uri: lb://test-provider
+          predicates: 
+            - Path=/test-provider/**
+          filters:
+            - StripPrefix=1

@@ -1,15 +1,16 @@
 package help.lixin.route.config;
 
+import com.alibaba.cloud.nacos.discovery.NacosDiscoveryClient;
 import com.netflix.loadbalancer.Server;
-import com.netflix.discovery.EurekaClient;
-import help.lixin.route.filter.IServerFilterFace;
-import help.lixin.route.gateway.LoadBalancerClientExtFilter;
 import help.lixin.route.core.parse.RouteParseServiceFace;
+import help.lixin.route.filter.IServerFilterFace;
+import help.lixin.route.gateway.NacosLoadBalancerClientExtFilter;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.gateway.config.GatewayAutoConfiguration;
 import org.springframework.cloud.gateway.config.LoadBalancerProperties;
@@ -29,11 +30,11 @@ import org.springframework.web.reactive.DispatcherHandler;
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
 @EnableConfigurationProperties(LoadBalancerProperties.class)
 @AutoConfigureAfter(RibbonAutoConfiguration.class)
-@ConditionalOnClass({LoadBalancerClient.class, RibbonAutoConfiguration.class, DispatcherHandler.class})
-public class GatewayRouteConfig {
+@ConditionalOnClass({LoadBalancerClient.class, RibbonAutoConfiguration.class, DispatcherHandler.class, NacosDiscoveryClient.class})
+public class NacosGatewayRouteConfig {
 
     @Bean
-    @ConditionalOnBean({EurekaClient.class, LoadBalancerClient.class})
+    @ConditionalOnBean({DiscoveryClient.class, LoadBalancerClient.class})
     @ConditionalOnClass(GatewayAutoConfiguration.class)
     public LoadBalancerClientFilter loadBalancerClientExtFilter(
             //
@@ -45,11 +46,11 @@ public class GatewayRouteConfig {
             //
             IServerFilterFace<Server> serverFilterFace,
             //
-            EurekaClient eurekaClient) {
-        LoadBalancerClientExtFilter filter = new LoadBalancerClientExtFilter(client, properties);
+            DiscoveryClient discoveryClient) {
+        NacosLoadBalancerClientExtFilter filter = new NacosLoadBalancerClientExtFilter(client, properties);
         filter.setRouteParseServiceFace(routeParseServiceFace);
         filter.setServerFilterFace(serverFilterFace);
-        filter.setEurekaClient(eurekaClient);
+        filter.setDiscoveryClient(discoveryClient);
         return filter;
     }
 }
