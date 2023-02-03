@@ -2,18 +2,21 @@ package help.lixin.route.config;
 
 import java.util.List;
 
-import com.netflix.loadbalancer.Server;
+import help.lixin.route.core.loadbalancer.BlockingLoadBalancerClientExt;
 import help.lixin.route.core.parse.IRouteParseService;
 import help.lixin.route.core.parse.RouteParseServiceFace;
 import help.lixin.route.core.parse.impl.RewriteRouteParseService;
-import help.lixin.route.filter.IServerFilter;
-import help.lixin.route.filter.IServerFilterFace;
-import help.lixin.route.filter.ServerFilterFace;
+import help.lixin.route.filter.IServiceInstanceFilter;
+import help.lixin.route.filter.IServiceInstanceFilterFace;
+import help.lixin.route.filter.ServiceInstanceFilterFace;
 import help.lixin.route.filter.impl.RewriteEurekaRouteFilter;
-import help.lixin.route.ribbon.RibbonClientAutoRegister;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerProperties;
+import org.springframework.cloud.loadbalancer.support.LoadBalancerClientFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -25,16 +28,14 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class CommonRouteConfig {
 
-    /**
-     * 对它的扩展:<br/>
-     *
-     * @return
-     * @RibbonClients(defaultConfiguration=XXX.class)<br/> 因为:它需要明确指定Class,而我这里的,Class会根据是nacos/eureka来指定.<br/>
-     */
+
     @Bean
-    public BeanFactoryPostProcessor ribbonClientAutoRegister() {
-        BeanFactoryPostProcessor register = new RibbonClientAutoRegister();
-        return register;
+    @ConditionalOnMissingBean
+    public LoadBalancerClient blockingLoadBalancerClient(LoadBalancerClientFactory loadBalancerClientFactory,
+                                                         RouteParseServiceFace routeParseServiceFace,
+                                                         //
+                                                         LoadBalancerProperties properties) {
+        return new BlockingLoadBalancerClientExt(loadBalancerClientFactory, properties, routeParseServiceFace);
     }
 
     /**
@@ -68,12 +69,12 @@ public class CommonRouteConfig {
      * @return
      */
     @Bean
-    public IServerFilterFace<Server> serverFilterFace(@Autowired(required = false) List<IServerFilter<Server>> serverFilters) {
-        ServerFilterFace serverFilterFace = new ServerFilterFace();
+    public IServiceInstanceFilterFace<ServiceInstance> serviceInstanceFilterFace(@Autowired(required = false) List<IServiceInstanceFilter<ServiceInstance>> serverFilters) {
+        ServiceInstanceFilterFace serviceInstanceFilterFace = new ServiceInstanceFilterFace();
         if (null != serverFilters) {
-            serverFilterFace.setFilterList(serverFilters);
+            serviceInstanceFilterFace.setFilterList(serverFilters);
         }
-        return serverFilterFace;
+        return serviceInstanceFilterFace;
     }
 
     /**
@@ -82,8 +83,8 @@ public class CommonRouteConfig {
      * @return
      */
     @Bean
-    public IServerFilter<Server> rewriteEurekaRouteFilter() {
-        IServerFilter<Server> rewriteEurekaRouteFilter = new RewriteEurekaRouteFilter();
+    public IServiceInstanceFilter<ServiceInstance> rewriteEurekaRouteFilter() {
+        IServiceInstanceFilter<ServiceInstance> rewriteEurekaRouteFilter = new RewriteEurekaRouteFilter();
         return rewriteEurekaRouteFilter;
     }
 }

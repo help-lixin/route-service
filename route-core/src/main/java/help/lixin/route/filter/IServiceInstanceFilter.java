@@ -1,10 +1,10 @@
 package help.lixin.route.filter;
 
-import com.netflix.loadbalancer.Server;
 import help.lixin.route.core.meta.ctx.RouteInfoContext;
+import org.springframework.cloud.client.ServiceInstance;
 
 import java.util.List;
 
-public interface IServerFilterFace<T extends Server> {
+public interface IServiceInstanceFilter<T extends ServiceInstance> {
     void filter(RouteInfoContext ctx, List<T> instances);
 }

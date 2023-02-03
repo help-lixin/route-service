@@ -6,10 +6,8 @@ public class Constants {
     public static final String ENABLED = "enabled";
     public static final String CONCAT_ROUTE_ENABLED = ROUTE_KEY + ROUTE_SPLIT + "enabled";
 
-    public static final String DISCOVERY_TYPE = "_discovery";
-    public static final String DISCOVERY_NACOS = "_nacos";
-    public static final String DISCOVERY_EUREKA = "eureka";
+    public static final String SERVICE_ID = "serviceId";
 
-    public static final String NACOS_RIBBON_CLIENT_CLASS = "help.lixin.route.ribbon.config.NacosRibbonClientConfig";
-    public static final String EUREKA_RIBBON_CLIENT_CLASS = "help.lixin.route.ribbon.config.EurekaRibbonClientConfig";
+    // serviceId#127.0.0.1#8080
+    public static final String SERVICE_ID_FORMAT = "%s#%s#%s";
 }

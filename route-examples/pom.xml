@@ -16,10 +16,14 @@
     </properties>
 
     <modules>
-        <module>route-eureka-gateway-example</module>
-        <module>route-nacos-gateway-example</module>
-        <module>route-eureka-server</module>
-        <module>route-eureka-apps-example</module>
+        <!--
         <module>route-nacos-apps-example</module>
+        <module>route-nacos-gateway-example</module>
+        -->
+
+        <module>route-eureka-server</module>
+        <module>route-eureka-gateway-example</module>
+        <module>route-eureka-apps-example</module>
+
     </modules>
 </project>
