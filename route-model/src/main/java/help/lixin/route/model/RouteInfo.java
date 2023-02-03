@@ -40,7 +40,7 @@ public class RouteInfo implements IRouteInfo {
         // ip地址
         private String ip;
         // 端口
-        private int port;
+        private Integer port;
 
         // 其它信息
         private Map<String, Object> others = new HashMap<String, Object>();
@@ -55,7 +55,7 @@ public class RouteInfo implements IRouteInfo {
             return this;
         }
 
-        public Builder port(int port) {
+        public Builder port(Integer port) {
             this.port = port;
             return this;
         }
@@ -118,7 +118,7 @@ public class RouteInfo implements IRouteInfo {
         this.ip = ip;
     }
 
-    public int getPort() {
+    public Integer getPort() {
         return port;
     }
 

@@ -27,10 +27,10 @@ public class BlockingLoadBalancerClientExt extends BlockingLoadBalancerClient {
             // 从请求头里,获得x-route信息
             DefaultRequest<RequestDataContext> defaultRequest = (DefaultRequest<RequestDataContext>) request;
             RequestData clientRequest = defaultRequest.getContext().getClientRequest();
-            List<String> routeList = clientRequest.getHeaders().get(Constants.ROUTE_KEY);
+            List<String> routeHeaderList = clientRequest.getHeaders().get(Constants.ROUTE_KEY);
 
-            if (null != routeList && routeList.size() > 0) {
-                String xroute = routeList.get(0);
+            if (null != routeHeaderList && routeHeaderList.size() > 0) {
+                String xroute = routeHeaderList.get(0);
                 // 判断serviceId是否在x-route协议头里有配置,如果有配置,代表要做特殊处理.
                 RouteInfoList routeInfoList = routeParseServiceFace.transform(xroute);
                 if (null != routeInfoList) {

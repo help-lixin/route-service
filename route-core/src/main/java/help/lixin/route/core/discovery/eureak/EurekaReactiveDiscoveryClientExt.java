@@ -7,30 +7,22 @@ import help.lixin.route.core.meta.ctx.RouteInfoContext;
 import help.lixin.route.filter.IServiceInstanceFilterFace;
 import help.lixin.route.model.RouteInfo;
 import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.netflix.eureka.EurekaDiscoveryClient;
+import org.springframework.cloud.netflix.eureka.reactive.EurekaReactiveDiscoveryClient;
+import reactor.core.publisher.Flux;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class EurekaDiscoveryClientExt extends EurekaDiscoveryClient {
-
+public class EurekaReactiveDiscoveryClientExt extends EurekaReactiveDiscoveryClient {
     private IServiceInstanceFilterFace serviceInstanceFilterFace;
 
-    public EurekaDiscoveryClientExt(EurekaClient eurekaClient, EurekaClientConfig clientConfig, IServiceInstanceFilterFace serviceInstanceFilterFace) {
+    public EurekaReactiveDiscoveryClientExt(EurekaClient eurekaClient, EurekaClientConfig clientConfig, IServiceInstanceFilterFace serviceInstanceFilterFace) {
         super(eurekaClient, clientConfig);
         this.serviceInstanceFilterFace = serviceInstanceFilterFace;
     }
 
-    public void setServiceInstanceFilterFace(IServiceInstanceFilterFace serviceInstanceFilterFace) {
-        this.serviceInstanceFilterFace = serviceInstanceFilterFace;
-    }
-
-    public IServiceInstanceFilterFace getServiceInstanceFilterFace() {
-        return serviceInstanceFilterFace;
-    }
-
     @Override
-    public List<ServiceInstance> getInstances(String serviceIdCtx) {
+    public Flux<ServiceInstance> getInstances(String serviceIdCtx) {
         String serviceId = serviceIdCtx;
         String ip = null;
         Integer port = null;
@@ -44,11 +36,11 @@ public class EurekaDiscoveryClientExt extends EurekaDiscoveryClient {
             isEnabledInstanceFilter = Boolean.TRUE;
         }
 
-        // 1. 正常去取上下文信息
-        List<ServiceInstance> instanceList = super.getInstances(serviceId);
-
+        Flux<ServiceInstance> instances = super.getInstances(serviceId);
         List<ServiceInstance> copyServiceInstances = new ArrayList<>();
-        copyServiceInstances.addAll(instanceList);
+        instances.subscribe(i -> {
+            copyServiceInstances.add(i);
+        });
 
         if (isEnabledInstanceFilter) {
             RouteInfo routeInfo = RouteInfo.newBuilder()
@@ -69,6 +61,6 @@ public class EurekaDiscoveryClientExt extends EurekaDiscoveryClient {
                     .build();
             serviceInstanceFilterFace.filter(ctx, copyServiceInstances);
         }
-        return copyServiceInstances;
+        return Flux.fromIterable(copyServiceInstances);
     }
 }
