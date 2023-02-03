@@ -58,6 +58,9 @@ lixin-macbook:route-service lixin$ tree -L 2
 │   └── route-gateway-example   # gateway
 └── route-model                       # route的业务模型
 ```
+### 5. 版本支持
+1) 2.1.1 支持spring-cloud-netflix-2.1.1.RELEASE 
+
 ### 5. 相关问题
 1) 为什么要共用Eureka/Nacos?    
    当流量导到你指定的机器上后,余下的的调用链路还需要继续执行的话,就需要与开发稳定环境共享同一个Eureka/Nacos.  
