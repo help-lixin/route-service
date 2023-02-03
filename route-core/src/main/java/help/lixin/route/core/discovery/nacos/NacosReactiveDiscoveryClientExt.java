@@ -1,26 +1,26 @@
-package help.lixin.route.core.discovery.eureak;
+package help.lixin.route.core.discovery.nacos;
 
-import com.netflix.discovery.EurekaClient;
-import com.netflix.discovery.EurekaClientConfig;
+import com.alibaba.cloud.nacos.discovery.NacosServiceDiscovery;
+import com.alibaba.cloud.nacos.discovery.reactive.NacosReactiveDiscoveryClient;
 import help.lixin.route.constants.Constants;
 import help.lixin.route.core.meta.ctx.RouteInfoContext;
 import help.lixin.route.filter.IServiceInstanceFilterFace;
 import help.lixin.route.model.RouteInfo;
 import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.netflix.eureka.reactive.EurekaReactiveDiscoveryClient;
 import reactor.core.publisher.Flux;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
-public class EurekaReactiveDiscoveryClientExt extends EurekaReactiveDiscoveryClient {
+public class NacosReactiveDiscoveryClientExt extends NacosReactiveDiscoveryClient {
+
     private IServiceInstanceFilterFace serviceInstanceFilterFace;
 
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    public EurekaReactiveDiscoveryClientExt(EurekaClient eurekaClient, EurekaClientConfig clientConfig, IServiceInstanceFilterFace serviceInstanceFilterFace) {
-        super(eurekaClient, clientConfig);
+    public NacosReactiveDiscoveryClientExt(NacosServiceDiscovery nacosServiceDiscovery, IServiceInstanceFilterFace serviceInstanceFilterFace) {
+        super(nacosServiceDiscovery);
         this.serviceInstanceFilterFace = serviceInstanceFilterFace;
     }
 
@@ -39,8 +39,8 @@ public class EurekaReactiveDiscoveryClientExt extends EurekaReactiveDiscoveryCli
             isEnabledInstanceFilter = Boolean.TRUE;
         }
 
+        // all
         Flux<ServiceInstance> instances = super.getInstances(serviceId);
-
         Future<List<ServiceInstance>> listFuture = executorService.submit(new Callable<List<ServiceInstance>>() {
             @Override
             public List<ServiceInstance> call() throws Exception {

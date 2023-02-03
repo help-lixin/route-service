@@ -1,4 +1,4 @@
-package help.lixin.route.gateway;
+package help.lixin.route.core.gateway;
 
 import help.lixin.route.constants.Constants;
 import help.lixin.route.core.parse.RouteParseServiceFace;

@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 /**
  * 拦截请求,获取协议头中的信息,转换成业务模型(RouteInfo),并设置到线程上下文中.
  */
+@Deprecated
 public class RouteFilter implements Filter {
 	private Logger logger = LoggerFactory.getLogger(RouteFilter.class);
 
