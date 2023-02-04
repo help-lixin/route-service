@@ -40,29 +40,29 @@ $ curl  -H 'x-route:test-provider/127.0.0.1:8080,test-consumer/127.0.0.1:7071' h
 ```
 ### 4. 项目工程目录介绍
 ```
-lixin-macbook:route-service lixin$ tree -L 2
 .
+├── LICENSE
 ├── README.md
-├── docs                      # 文档
+├── docs                                         # 文档说明
 │   ├── README.md
 │   └── imgs
-├── pom.xml
-├── route-core               # route核心代码
-│   ├── pom.xml
-│   ├── src
-│   └── target
-├── route-examples          # route测试代码
-│   ├── pom.xml
-│   ├── route-apps-example      # 模拟应用程序
-│   ├── route-eureka-example    # eureka-server
-│   └── route-gateway-example   # gateway
-└── route-model                       # route的业务模型
+├── route-core                                   # 路由重写的核心代码
+├── route-examples                               # 所有的案例代码集
+│   ├── eureka-server                      # eureka server
+│   ├── route-eureka-apps-example          # eureka与spring cloud集成案例
+│   ├── route-eureka-gateway-example       # eureka与gateway集成案例
+│   ├── route-nacos-apps-example           # nacos与spring cloud集成案例
+│   ├── route-nacos-gateway-example        # nacos与gateway集成案例
+│   ├── route-polaris-apps-example         # 腾讯北极星与spring cloud集成案例
+│   └── route-polaris-gateway-example      # 腾讯北极星与gateway集成案例
+└── route-model         # route的业务模型
 ```
 ### 5. 版本支持
-1) 2.1.1 (支持spring-cloud-netflix-2.1.1.RELEASE)    
+1) 2.1.1 (支持spring-cloud-netflix-2.1.1.RELEASE)
+2) 3.0.0 (支持spring-cloud-netflix-3.0.0.RELEASE)
 
 ### 6. 相关问题
-1) 为什么要共用Eureka/Nacos?    
+1) 为什么要共用Eureka/Nacos/Polaris?    
    当流量导到你指定的机器上后,余下的的调用链路还需要继续执行的话,就需要与开发稳定环境共享同一个Eureka/Nacos.  
 2) 支持路由重写哪些?    
    暂时只支持:Spring Cloud Gateway/Ribbon/OpenFeign. 
