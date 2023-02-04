@@ -1,6 +1,8 @@
 # Compiled class file
 *.class
 
+/target/*
+
 # IDEA
 /.idea
 .idea
