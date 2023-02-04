@@ -1,6 +1,7 @@
 # Compiled class file
 *.class
 
+./polaris/*
 /target/*
 
 # IDEA

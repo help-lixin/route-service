@@ -1,0 +1,28 @@
+#端口
+server:
+  port: 9999
+
+x-route:
+  enabled: true
+
+spring:
+  application:
+    name: gateway-server  # 应用名称
+  cloud:
+    polaris:
+      namespace: default
+      address: grpc://127.0.0.1:8091
+    gateway:
+      routes:
+        - id: test-consumer-service
+          uri: lb://test-consumer
+          predicates: 
+            - Path=/test-consumer/**
+          filters:
+            - StripPrefix=1
+        - id: test-provider-service
+          uri: lb://test-provider
+          predicates: 
+            - Path=/test-provider/**
+          filters:
+            - StripPrefix=1

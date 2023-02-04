@@ -2,6 +2,7 @@ package help.lixin.route.core.gateway;
 
 import help.lixin.route.constants.Constants;
 import help.lixin.route.core.parse.RouteParseServiceFace;
+import help.lixin.route.core.serviceid.IServiceIdService;
 import help.lixin.route.model.IRouteInfo;
 import help.lixin.route.model.RouteInfo;
 import help.lixin.route.model.RouteInfoList;
@@ -35,15 +36,18 @@ public class ReactiveLoadBalancerClientFilterExt extends ReactiveLoadBalancerCli
 
     private LoadBalancerClientFactory clientFactory;
     private GatewayLoadBalancerProperties properties;
+
+    private IServiceIdService serviceIdService;
+
     private LoadBalancerProperties loadBalancerProperties;
 
-    public ReactiveLoadBalancerClientFilterExt(LoadBalancerClientFactory clientFactory, GatewayLoadBalancerProperties properties, LoadBalancerProperties loadBalancerProperties, RouteParseServiceFace routeParseServiceFace) {
+    public ReactiveLoadBalancerClientFilterExt(LoadBalancerClientFactory clientFactory, GatewayLoadBalancerProperties properties, LoadBalancerProperties loadBalancerProperties, RouteParseServiceFace routeParseServiceFace, IServiceIdService serviceIdService) {
         super(clientFactory, properties, loadBalancerProperties);
         this.clientFactory = clientFactory;
         this.properties = properties;
         this.loadBalancerProperties = loadBalancerProperties;
-
         this.routeParseServiceFace = routeParseServiceFace;
+        this.serviceIdService = serviceIdService;
     }
 
     @Override
@@ -75,7 +79,7 @@ public class ReactiveLoadBalancerClientFilterExt extends ReactiveLoadBalancerCli
                     // 通过改变:serviceId来实现上下文的传递
                     // ***********************************************************************************
                     // serviceId#host#port
-                    String newServiceId = String.format(Constants.SERVICE_ID_FORMAT, serviceId, tmpRouteInfo.getIp(), tmpRouteInfo.getPort());
+                    String newServiceId = serviceIdService.encode(serviceId, tmpRouteInfo);
                     serviceId = newServiceId;
                 }
             }

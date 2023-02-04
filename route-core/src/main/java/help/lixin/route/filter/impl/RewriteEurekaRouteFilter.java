@@ -16,17 +16,19 @@ import java.util.List;
 public class RewriteEurekaRouteFilter implements IServiceInstanceFilter<ServiceInstance> {
     @Override
     public void filter(RouteInfoContext ctx, List<ServiceInstance> instances) {
-        IRouteInfo routeInfo = ctx.getRouteInfo();
-        if (routeInfo instanceof RouteInfo) {
-            RouteInfo routeInfoImpl = (RouteInfo) routeInfo;
-            // 1. mock ServiceInstance
-            ServiceInstance mockServiceInstance = new DefaultServiceInstance(routeInfoImpl.getServiceId(), routeInfoImpl.getServiceId(), routeInfoImpl.getIp(), routeInfoImpl.getPort(), false);
+        if (null != ctx) {
+            IRouteInfo routeInfo = ctx.getRouteInfo();
+            if (routeInfo instanceof RouteInfo) {
+                RouteInfo routeInfoImpl = (RouteInfo) routeInfo;
+                // 1. mock ServiceInstance
+                ServiceInstance mockServiceInstance = new DefaultServiceInstance(routeInfoImpl.getServiceId(), routeInfoImpl.getServiceId(), routeInfoImpl.getIp(), routeInfoImpl.getPort(), false);
 
-            // 2. 清空
-            instances.clear();
+                // 2. 清空
+                instances.clear();
 
-            // 3. 重新添加
-            instances.add(mockServiceInstance);
+                // 3. 重新添加
+                instances.add(mockServiceInstance);
+            }
         }
     }
 }

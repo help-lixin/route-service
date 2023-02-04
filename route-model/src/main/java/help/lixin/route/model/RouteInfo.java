@@ -7,6 +7,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class RouteInfo implements IRouteInfo {
+
+    private String group;
+
     // 微服务名称
     private String serviceId;
     // ip地址
@@ -34,6 +37,8 @@ public class RouteInfo implements IRouteInfo {
 
     public static class Builder {
         private Logger logger = LoggerFactory.getLogger(RouteInfo.class);
+        // 组
+        private String group;
 
         // 微服务名称
         private String serviceId;
@@ -44,6 +49,11 @@ public class RouteInfo implements IRouteInfo {
 
         // 其它信息
         private Map<String, Object> others = new HashMap<String, Object>();
+
+        public Builder group(String group) {
+            this.group = group;
+            return this;
+        }
 
         public Builder serviceId(String serviceId) {
             this.serviceId = serviceId;
@@ -97,6 +107,7 @@ public class RouteInfo implements IRouteInfo {
             routeInfo.setServiceId(serviceId);
             routeInfo.setIp(ip);
             routeInfo.setPort(port);
+            routeInfo.setGroup(group);
             routeInfo.setOthers(others);
             return routeInfo;
         }
@@ -126,23 +137,24 @@ public class RouteInfo implements IRouteInfo {
         this.port = port;
     }
 
+    public void setGroup(String group) {
+        this.group = group;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         RouteInfo routeInfo = (RouteInfo) o;
         return serviceId.equals(routeInfo.serviceId);
     }
 
     @Override
     public String toString() {
-        return "DefaultRouteInfo{" +
-                "serviceId='" + serviceId + '\'' +
-                ", ip='" + ip + '\'' +
-                ", port=" + port +
-                ", others=" + others +
-                '}';
+        return "DefaultRouteInfo{" + "serviceId='" + serviceId + '\'' + ", ip='" + ip + '\'' + ", port=" + port + ", others=" + others + '}';
     }
 }

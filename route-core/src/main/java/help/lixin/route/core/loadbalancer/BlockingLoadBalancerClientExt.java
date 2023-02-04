@@ -2,6 +2,7 @@ package help.lixin.route.core.loadbalancer;
 
 import help.lixin.route.constants.Constants;
 import help.lixin.route.core.parse.RouteParseServiceFace;
+import help.lixin.route.core.serviceid.IServiceIdService;
 import help.lixin.route.model.IRouteInfo;
 import help.lixin.route.model.RouteInfo;
 import help.lixin.route.model.RouteInfoList;
@@ -16,11 +17,29 @@ import java.util.List;
 
 public class BlockingLoadBalancerClientExt extends BlockingLoadBalancerClient {
     private RouteParseServiceFace routeParseServiceFace;
+    private IServiceIdService serviceIdService;
 
 
-    public BlockingLoadBalancerClientExt(LoadBalancerClientFactory loadBalancerClientFactory, LoadBalancerProperties properties, RouteParseServiceFace routeParseServiceFace) {
+    public BlockingLoadBalancerClientExt(LoadBalancerClientFactory loadBalancerClientFactory, LoadBalancerProperties properties, RouteParseServiceFace routeParseServiceFace, IServiceIdService serviceIdService) {
         super(loadBalancerClientFactory, properties);
         this.routeParseServiceFace = routeParseServiceFace;
+        this.serviceIdService = serviceIdService;
+    }
+
+    public void setRouteParseServiceFace(RouteParseServiceFace routeParseServiceFace) {
+        this.routeParseServiceFace = routeParseServiceFace;
+    }
+
+    public RouteParseServiceFace getRouteParseServiceFace() {
+        return routeParseServiceFace;
+    }
+
+    public void setServiceIdService(IServiceIdService serviceIdService) {
+        this.serviceIdService = serviceIdService;
+    }
+
+    public IServiceIdService getServiceIdService() {
+        return serviceIdService;
     }
 
     @Override
@@ -61,8 +80,8 @@ public class BlockingLoadBalancerClientExt extends BlockingLoadBalancerClient {
                             IRouteInfo routeInfo = routeInfoList.getRouteInfos().get(serviceId);
                             if (null != routeInfo && routeInfo instanceof RouteInfo) {
                                 RouteInfo tmpRouteInfo = (RouteInfo) routeInfo;
-                                // serviceId#host#port
-                                String newServiceId = String.format(Constants.SERVICE_ID_FORMAT, serviceId, tmpRouteInfo.getIp(), tmpRouteInfo.getPort());
+                                // group#serviceId#host#port
+                                String newServiceId = serviceIdService.encode(serviceId, routeInfo);
                                 return newServiceId;
                             }
                         }
@@ -90,8 +109,8 @@ public class BlockingLoadBalancerClientExt extends BlockingLoadBalancerClient {
                 IRouteInfo routeInfo = routeInfoList.getRouteInfos().get(serviceId);
                 if (null != routeInfo && routeInfo instanceof RouteInfo) {
                     RouteInfo tmpRouteInfo = (RouteInfo) routeInfo;
-                    // serviceId#host#port
-                    String newServiceId = String.format(Constants.SERVICE_ID_FORMAT, serviceId, tmpRouteInfo.getIp(), tmpRouteInfo.getPort());
+                    // group#serviceId#host#port
+                    String newServiceId = serviceIdService.encode(serviceId, routeInfo);
                     return newServiceId;
                 }
             }

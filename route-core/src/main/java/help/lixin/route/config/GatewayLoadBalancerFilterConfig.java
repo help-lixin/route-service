@@ -2,6 +2,7 @@ package help.lixin.route.config;
 
 import help.lixin.route.core.parse.RouteParseServiceFace;
 import help.lixin.route.core.gateway.ReactiveLoadBalancerClientFilterExt;
+import help.lixin.route.core.serviceid.IServiceIdService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerProperties;
 import org.springframework.cloud.gateway.config.GatewayLoadBalancerProperties;
@@ -26,8 +27,9 @@ public class GatewayLoadBalancerFilterConfig {
                                                                             RouteParseServiceFace routeParseServiceFace,
                                                                             //
                                                                             GatewayLoadBalancerProperties properties,
+                                                                            IServiceIdService serviceIdService,
                                                                             //
                                                                             LoadBalancerProperties loadBalancerProperties) {
-        return new ReactiveLoadBalancerClientFilterExt(clientFactory, properties, loadBalancerProperties, routeParseServiceFace);
+        return new ReactiveLoadBalancerClientFilterExt(clientFactory, properties, loadBalancerProperties, routeParseServiceFace, serviceIdService);
     }
 }

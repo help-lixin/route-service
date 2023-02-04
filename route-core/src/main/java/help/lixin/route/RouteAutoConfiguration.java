@@ -11,7 +11,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ImportAutoConfiguration({CommonRouteConfig.class, EurekaClientConfig.class, NacosClientConfig.class, FeignRouteConfig.class, WebRouteConfig.class, GatewayLoadBalancerFilterConfig.class,})
+@ImportAutoConfiguration({CommonRouteConfig.class, EurekaClientConfig.class, NacosClientConfig.class, PolarisClientConfig.class, FeignRouteConfig.class, WebRouteConfig.class, GatewayLoadBalancerFilterConfig.class,})
 @EnableConfigurationProperties(RouteProperties.class)
 @ConditionalOnProperty(prefix = Constants.ROUTE_KEY, name = Constants.ENABLED, havingValue = "true", matchIfMissing = false)
 public class RouteAutoConfiguration {

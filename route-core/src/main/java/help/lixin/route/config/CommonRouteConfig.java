@@ -2,10 +2,14 @@ package help.lixin.route.config;
 
 import java.util.List;
 
+import help.lixin.route.core.discovery.DiscoveryClientTemplate;
+import help.lixin.route.core.discovery.IDiscoveryClientTemplate;
 import help.lixin.route.core.loadbalancer.BlockingLoadBalancerClientExt;
 import help.lixin.route.core.parse.IRouteParseService;
 import help.lixin.route.core.parse.RouteParseServiceFace;
 import help.lixin.route.core.parse.impl.RewriteRouteParseService;
+import help.lixin.route.core.serviceid.IServiceIdService;
+import help.lixin.route.core.serviceid.impl.ServiceIdService;
 import help.lixin.route.filter.IServiceInstanceFilter;
 import help.lixin.route.filter.IServiceInstanceFilterFace;
 import help.lixin.route.filter.ServiceInstanceFilterFace;
@@ -28,14 +32,29 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class CommonRouteConfig {
 
+    @Bean
+    public IDiscoveryClientTemplate discoveryClientTemplate(IServiceInstanceFilterFace serviceInstanceFilterFace,
+                                                            //
+                                                            IServiceIdService serviceIdService) {
+        return new DiscoveryClientTemplate(serviceInstanceFilterFace, serviceIdService);
+    }
+
+    @Bean
+    public IServiceIdService serviceIdService() {
+        return new ServiceIdService();
+    }
+
 
     @Bean
     @ConditionalOnMissingBean
     public LoadBalancerClient blockingLoadBalancerClient(LoadBalancerClientFactory loadBalancerClientFactory,
+                                                         //
                                                          RouteParseServiceFace routeParseServiceFace,
                                                          //
+                                                         IServiceIdService serviceIdService,
+                                                         //
                                                          LoadBalancerProperties properties) {
-        return new BlockingLoadBalancerClientExt(loadBalancerClientFactory, properties, routeParseServiceFace);
+        return new BlockingLoadBalancerClientExt(loadBalancerClientFactory, properties, routeParseServiceFace, serviceIdService);
     }
 
     /**

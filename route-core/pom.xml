@@ -46,17 +46,22 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-openfeign</artifactId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.tencent.cloud</groupId>
+            <artifactId>spring-cloud-starter-tencent-polaris-discovery</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>

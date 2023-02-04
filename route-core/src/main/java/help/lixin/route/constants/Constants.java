@@ -8,6 +8,8 @@ public class Constants {
 
     public static final String SERVICE_ID = "serviceId";
 
-    // serviceId#127.0.0.1#8080
-    public static final String SERVICE_ID_FORMAT = "%s#%s#%s";
+    // group#serviceId#127.0.0.1#8080
+    public static final String SERVICE_ID_FORMAT = "%s#%s#%s#%s";
+
+    public static final String DEFAULT_GROUP = "default";
 }
