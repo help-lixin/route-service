@@ -25,59 +25,77 @@ public class BlockingLoadBalancerClientExt extends BlockingLoadBalancerClient {
 
     @Override
     public <T> ServiceInstance choose(String serviceId, Request<T> request) {
-        if (request instanceof LoadBalancerRequestAdapter) { // ribbon的独特处理,不太建议用ribbon.
-            LoadBalancerRequestAdapter<LoadBalancerRequest<DefaultRequest>, DefaultRequestContext> loadBalancerRequestAdapter = (LoadBalancerRequestAdapter<LoadBalancerRequest<DefaultRequest>, DefaultRequestContext>) request;
-            DefaultRequestContext context = loadBalancerRequestAdapter.getContext();
-            Object clientRequest = context.getClientRequest();
-            try {
-                Field[] fields = clientRequest.getClass().getDeclaredFields();
-                for (Field field : fields) {
-                    field.setAccessible(Boolean.TRUE);
-                    Object object = field.get(clientRequest);
-                    if (object instanceof AbstractClientHttpRequest) {
-                        AbstractClientHttpRequest clientHttpRequest = (AbstractClientHttpRequest) object;
-                        // 从请求头里,获得x-route信息
-                        List<String> routeHeaderList = clientHttpRequest.getHeaders().get(Constants.ROUTE_KEY);
-                        if (null != routeHeaderList && routeHeaderList.size() > 0) {
-                            String xroute = routeHeaderList.get(0);
-                            // 判断serviceId是否在x-route协议头里有配置,如果有配置,代表要做特殊处理.
-                            RouteInfoList routeInfoList = routeParseServiceFace.transform(xroute);
-                            if (null != routeInfoList) {
-                                IRouteInfo routeInfo = routeInfoList.getRouteInfos().get(serviceId);
-                                if (null != routeInfo && routeInfo instanceof RouteInfo) {
-                                    RouteInfo tmpRouteInfo = (RouteInfo) routeInfo;
-                                    // serviceId#host#port
-                                    String newServiceId = String.format(Constants.SERVICE_ID_FORMAT, serviceId, tmpRouteInfo.getIp(), tmpRouteInfo.getPort());
-                                    return super.choose(newServiceId, request);
-                                }
+        String newServiceId = null;
+        if (request instanceof LoadBalancerRequestAdapter) { // ribbon的独特处理,不太建议用ribbon,里面需要反射
+            newServiceId = processLoadBalancerRequestAdapter(serviceId, request);
+        } else if (request instanceof DefaultRequest) {
+            newServiceId = processDefaultRequest(serviceId, request);
+        }
+
+        if (null == newServiceId) {
+            newServiceId = serviceId;
+        }
+
+        return super.choose(newServiceId, request);
+    }
+
+
+    public String processLoadBalancerRequestAdapter(String serviceId, Request request) {
+        LoadBalancerRequestAdapter<LoadBalancerRequest<DefaultRequest>, DefaultRequestContext> loadBalancerRequestAdapter = (LoadBalancerRequestAdapter<LoadBalancerRequest<DefaultRequest>, DefaultRequestContext>) request;
+        DefaultRequestContext context = loadBalancerRequestAdapter.getContext();
+        Object clientRequest = context.getClientRequest();
+        try {
+            Field[] fields = clientRequest.getClass().getDeclaredFields();
+            for (Field field : fields) {
+                field.setAccessible(Boolean.TRUE);
+                Object object = field.get(clientRequest);
+                if (object instanceof AbstractClientHttpRequest) { // 处理这段逻辑后,就跳出循环,不需要再继续往下去比较了.
+                    AbstractClientHttpRequest clientHttpRequest = (AbstractClientHttpRequest) object;
+                    // 从请求头里,获得x-route信息
+                    List<String> routeHeaderList = clientHttpRequest.getHeaders().get(Constants.ROUTE_KEY);
+                    if (null != routeHeaderList && routeHeaderList.size() > 0) {
+                        String xroute = routeHeaderList.get(0);
+                        // 判断serviceId是否在x-route协议头里有配置,如果有配置,代表要做特殊处理.
+                        RouteInfoList routeInfoList = routeParseServiceFace.transform(xroute);
+                        if (null != routeInfoList) {
+                            IRouteInfo routeInfo = routeInfoList.getRouteInfos().get(serviceId);
+                            if (null != routeInfo && routeInfo instanceof RouteInfo) {
+                                RouteInfo tmpRouteInfo = (RouteInfo) routeInfo;
+                                // serviceId#host#port
+                                String newServiceId = String.format(Constants.SERVICE_ID_FORMAT, serviceId, tmpRouteInfo.getIp(), tmpRouteInfo.getPort());
+                                return newServiceId;
                             }
                         }
                     }
+                    break;
                 }
-            } catch (Exception e) {
             }
-        } else if (request instanceof DefaultRequest) {
-            // 从请求头里,获得x-route信息
-            DefaultRequest<RequestDataContext> defaultRequest = (DefaultRequest<RequestDataContext>) request;
+        } catch (Exception ignore) {
+        }
+        return null;
+    }
 
-            RequestData clientRequest = defaultRequest.getContext().getClientRequest();
-            List<String> routeHeaderList = clientRequest.getHeaders().get(Constants.ROUTE_KEY);
+    public String processDefaultRequest(String serviceId, Request request) {
+        // 从请求头里,获得x-route信息
+        DefaultRequest<RequestDataContext> defaultRequest = (DefaultRequest<RequestDataContext>) request;
 
-            if (null != routeHeaderList && routeHeaderList.size() > 0) {
-                String xroute = routeHeaderList.get(0);
-                // 判断serviceId是否在x-route协议头里有配置,如果有配置,代表要做特殊处理.
-                RouteInfoList routeInfoList = routeParseServiceFace.transform(xroute);
-                if (null != routeInfoList) {
-                    IRouteInfo routeInfo = routeInfoList.getRouteInfos().get(serviceId);
-                    if (null != routeInfo && routeInfo instanceof RouteInfo) {
-                        RouteInfo tmpRouteInfo = (RouteInfo) routeInfo;
-                        // serviceId#host#port
-                        String newServiceId = String.format(Constants.SERVICE_ID_FORMAT, serviceId, tmpRouteInfo.getIp(), tmpRouteInfo.getPort());
-                        return super.choose(newServiceId, request);
-                    }
+        RequestData clientRequest = defaultRequest.getContext().getClientRequest();
+        List<String> routeHeaderList = clientRequest.getHeaders().get(Constants.ROUTE_KEY);
+
+        if (null != routeHeaderList && routeHeaderList.size() > 0) {
+            String xroute = routeHeaderList.get(0);
+            // 判断serviceId是否在x-route协议头里有配置,如果有配置,代表要做特殊处理.
+            RouteInfoList routeInfoList = routeParseServiceFace.transform(xroute);
+            if (null != routeInfoList) {
+                IRouteInfo routeInfo = routeInfoList.getRouteInfos().get(serviceId);
+                if (null != routeInfo && routeInfo instanceof RouteInfo) {
+                    RouteInfo tmpRouteInfo = (RouteInfo) routeInfo;
+                    // serviceId#host#port
+                    String newServiceId = String.format(Constants.SERVICE_ID_FORMAT, serviceId, tmpRouteInfo.getIp(), tmpRouteInfo.getPort());
+                    return newServiceId;
                 }
             }
         }
-        return super.choose(serviceId, request);
+        return null;
     }
 }
