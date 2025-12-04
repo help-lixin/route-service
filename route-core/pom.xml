@@ -30,8 +30,7 @@
         <!-- spring cloud gateway -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-gateway-core</artifactId>
-            <version>2.2.8.RELEASE</version>
+            <artifactId>spring-cloud-starter-gateway</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>

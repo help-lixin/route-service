@@ -45,7 +45,7 @@ public class DiscoveryClientTemplate implements IDiscoveryClientTemplate {
         RouteInfoContext ctx = null;
         // ip和port存在的情况下,代表着要进行路由重新,才会把要重写的路由信息写入上下文里.
         if (null != ip && null != port) {
-            RouteInfo routeInfo = RouteInfo.newBuilder().ip(ip).port(port).build();
+            RouteInfo routeInfo = RouteInfo.newBuilder().serviceId(serviceId).ip(ip).port(port).build();
             ctx = RouteInfoContext.newBuilder()
                     //
                     .routeInfo(routeInfo)

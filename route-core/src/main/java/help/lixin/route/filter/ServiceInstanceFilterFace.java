@@ -25,9 +25,6 @@ public class ServiceInstanceFilterFace implements IServiceInstanceFilterFace<Ser
         if (null == filterList || filterList.isEmpty()) {
             return;
         }
-        if (null == instances || instances.isEmpty()) {
-            return;
-        }
         filterList.forEach(interceptor -> interceptor.filter(ctx, instances));
     }
 }

@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class ConsumerController {
+    //  不建议走RestTemplate,建议走Feign
+    @Deprecated
 	@Autowired
 	private HelloService helloService;
 	
@@ -21,7 +23,7 @@ public class ConsumerController {
 	@GetMapping("/consumer")
 	public String index(@RequestHeader(value = "x-route", required = false) String xroute) {
 		System.out.println("******************************x-route*****************************" + xroute);
-		return helloService.hello();
+		return testProviderHelloServie.hello();
 	}
 	
 	@GetMapping("/hello")
