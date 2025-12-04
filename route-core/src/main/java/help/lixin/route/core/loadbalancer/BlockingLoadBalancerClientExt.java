@@ -21,7 +21,7 @@ public class BlockingLoadBalancerClientExt extends BlockingLoadBalancerClient {
 
 
     public BlockingLoadBalancerClientExt(LoadBalancerClientFactory loadBalancerClientFactory, LoadBalancerProperties properties, RouteParseServiceFace routeParseServiceFace, IServiceIdService serviceIdService) {
-        super(loadBalancerClientFactory, properties);
+        super(loadBalancerClientFactory);
         this.routeParseServiceFace = routeParseServiceFace;
         this.serviceIdService = serviceIdService;
     }

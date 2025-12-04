@@ -4,15 +4,13 @@ import help.lixin.route.consumer2.service.HelloService;
 import help.lixin.route.model.User;
 import help.lixin.route.service.TestProviderHelloServie;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class ConsumerController {
-	@Autowired
+    //  不建议走RestTemplate,建议走Feign
+    @Deprecated
+    @Autowired
 	private HelloService helloService;
 
 	@Autowired
@@ -21,7 +19,7 @@ public class ConsumerController {
 	@GetMapping("/consumer")
 	public String index(@RequestHeader(value = "x-route", required = false) String xroute) {
 		System.out.println("******************************x-route*****************************" + xroute);
-		return helloService.hello();
+        return testProviderHelloServie.hello();
 	}
 
 	@GetMapping("/hello")

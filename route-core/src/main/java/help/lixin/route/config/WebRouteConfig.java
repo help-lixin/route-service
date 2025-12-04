@@ -6,6 +6,7 @@ import java.util.List;
 import help.lixin.route.core.parse.RouteParseServiceFace;
 import help.lixin.route.transmit.rest.RouteRequestInterceptor;
 import help.lixin.route.core.servlet.RouteFilter;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +20,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
-
-import javax.annotation.PostConstruct;
 
 /**
  * 针对webmvc的配置

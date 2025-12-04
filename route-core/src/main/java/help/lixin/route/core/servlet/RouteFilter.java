@@ -1,22 +1,16 @@
 package help.lixin.route.core.servlet;
 
-import java.io.IOException;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-
 import help.lixin.route.constants.Constants;
 import help.lixin.route.core.context.RouteInfoHolder;
 import help.lixin.route.core.context.XRouteHolder;
-import help.lixin.route.model.RouteInfoList;
 import help.lixin.route.core.parse.RouteParseServiceFace;
+import help.lixin.route.model.RouteInfoList;
+import jakarta.servlet.*;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 /**
  * 拦截请求,获取协议头中的信息,转换成业务模型(RouteInfo),并设置到线程上下文中.

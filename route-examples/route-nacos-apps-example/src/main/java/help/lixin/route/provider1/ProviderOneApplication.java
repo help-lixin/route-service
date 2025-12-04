@@ -2,16 +2,10 @@ package help.lixin.route.provider1;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @EnableDiscoveryClient
 @SpringBootApplication(scanBasePackages = "help.lixin.route.provider1")

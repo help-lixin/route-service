@@ -34,7 +34,7 @@ public class NacosReactiveDiscoveryClientExt extends NacosReactiveDiscoveryClien
             @Override
             public List<ServiceInstance> getInstanceList(String serviceId) {
                 List<ServiceInstance> res = new ArrayList<>();
-                // 调用父类去拿.
+                // 调用Nacos父类去拿所有的实例列表
                 Flux<ServiceInstance> instances = NacosReactiveDiscoveryClientExt.super.getInstances(serviceId);
                 // 通过异步处理
                 Future<List<ServiceInstance>> listFuture = executorService.submit(new Callable<List<ServiceInstance>>() {
