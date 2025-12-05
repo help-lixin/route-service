@@ -1,8 +1,5 @@
 package help.lixin.route.env;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import help.lixin.route.constants.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +8,9 @@ import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.PropertySource;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 在启动Spring之前,可以添加环境变量
@@ -24,6 +24,8 @@ public class RouteEnvironmentConfigService implements EnvironmentPostProcessor {
     // 排除gateway配置的:LoadBalancerClient
     private String excludeGatewayKey = "spring.autoconfigure.exclude";
     private String excludeValue = "org.springframework.cloud.gateway.config.GatewayLoadBalancerClientAutoConfiguration";
+    private String excludeNacosDiscoveryClientValue = "com.alibaba.cloud.nacos.discovery.NacosDiscoveryClientConfiguration";
+    private String excludeNacosReactiveDiscoveryClientValue = "com.alibaba.cloud.nacos.discovery.reactive.NacosReactiveDiscoveryClientConfiguration";
     private final String name = "_overrideRouteEnv";
 
     @Override
@@ -33,7 +35,7 @@ public class RouteEnvironmentConfigService implements EnvironmentPostProcessor {
             Map<String, Object> frameworkEnvironment = new HashMap<String, Object>();
             // 添加默认的,允许对bean进行重写.
             frameworkEnvironment.put(beanDefinitionOverridingKey, beanDefinitionOverridingValue);
-            frameworkEnvironment.put(excludeGatewayKey, excludeValue);
+            frameworkEnvironment.put(excludeGatewayKey, String.format("%s,%s,%s", excludeValue, excludeNacosDiscoveryClientValue, excludeNacosReactiveDiscoveryClientValue));
             PropertySource<Map<String, Object>> propertySource = new MapPropertySource(name, frameworkEnvironment);
             environment.getPropertySources().addFirst(propertySource);
             logger.debug("RouteEnvironmentConfigService setting: allow-bean-definition-overriding/exclude  bean");
