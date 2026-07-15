@@ -3,6 +3,7 @@ package help.lixin.route.config;
 import help.lixin.route.core.parse.RouteParseServiceFace;
 import help.lixin.route.core.gateway.ReactiveLoadBalancerClientFilterExt;
 import help.lixin.route.core.serviceid.IServiceIdService;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerProperties;
 import org.springframework.cloud.gateway.config.GatewayLoadBalancerProperties;
@@ -19,6 +20,7 @@ import org.springframework.context.annotation.Configuration;
 @SuppressWarnings("deprecation")
 @Configuration
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
+@ConditionalOnClass(ReactiveLoadBalancerClientFilter.class)
 public class GatewayLoadBalancerFilterConfig {
 
     @Bean
